@@ -350,6 +350,102 @@ class FixedQueue:
     else:
         st.warning("Não foi possível gerar dados transformados. Verifique o tamanho da janela.")
 
+    # 4. BONUS: Usando uma Pilha para Detectar Extremos
+    st.markdown("---")
+    st.subheader("4. 🏔️ BONUS: Pilha para Detectar Extremos (Picos e Vales)")
+    st.markdown("""
+    **💡 Uso Real da Pilha:** Vamos usar uma pilha para detectar e armazenar **picos** (máximos locais) e **vales** (mínimos locais) 
+    conforme processamos os dados. Isso adiciona features valiosas para o modelo sem complexidade excessiva!
+    
+    **🎯 Por que é útil:**
+    - Identifica níveis de resistência e suporte
+    - Detecta padrões de reversão de tendência
+    - Adiciona contexto técnico aos dados
+    """)
+    
+    if not df_final.empty and len(df_original) > 50:
+        # Implementação simples da pilha de extremos
+        class PilhaExtremos:
+            def __init__(self):
+                self.picos = []  # Pilha de máximos locais
+                self.vales = []  # Pilha de mínimos locais
+        
+        def detectar_extremos(dados, janela=5):
+            """Detecta picos e vales usando uma janela móvel simples"""
+            pilha = PilhaExtremos()
+            extremos_detectados = []
+            
+            for i in range(janela, len(dados) - janela):
+                valor_atual = dados[i]
+                janela_dados = dados[i-janela:i+janela+1]
+                
+                # É um pico se for o maior na janela
+                if valor_atual == max(janela_dados):
+                    pilha.picos.append((i, valor_atual))
+                    extremos_detectados.append((i, valor_atual, "pico"))
+                
+                # É um vale se for o menor na janela  
+                elif valor_atual == min(janela_dados):
+                    pilha.vales.append((i, valor_atual))
+                    extremos_detectados.append((i, valor_atual, "vale"))
+            
+            return pilha, extremos_detectados
+        
+        # Aplicar detecção nos primeiros 200 pontos para visualização
+        dados_sample = df_original['Close'].iloc[:200].values
+        pilha_extremos, extremos = detectar_extremos(dados_sample)
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Visualizar os extremos detectados
+            fig, ax = plt.subplots(figsize=(12, 6))
+            ax.plot(range(len(dados_sample)), dados_sample, 'b-', alpha=0.7, label='Preço Bitcoin')
+            
+            # Marcar picos e vales
+            for idx, valor, tipo in extremos:
+                if tipo == "pico":
+                    ax.scatter(idx, valor, color='red', s=50, marker='^', label='Pico' if 'Pico' not in [l.get_label() for l in ax.get_legend().get_texts()] else '')
+                else:
+                    ax.scatter(idx, valor, color='green', s=50, marker='v', label='Vale' if 'Vale' not in [l.get_label() for l in ax.get_legend().get_texts()] else '')
+            
+            ax.set_title('Detecção de Extremos com Pilha', fontweight='bold')
+            ax.set_xlabel('Minutos')
+            ax.set_ylabel('Preço (USD)')
+            ax.legend()
+            ax.grid(True, alpha=0.3)
+            st.pyplot(fig)
+        
+        with col2:
+            st.markdown("### 📊 Estatísticas da Pilha")
+            st.metric("Picos Detectados", len(pilha_extremos.picos))
+            st.metric("Vales Detectados", len(pilha_extremos.vales))
+            st.metric("Total de Extremos", len(extremos))
+            
+            if pilha_extremos.picos:
+                ultimo_pico = pilha_extremos.picos[-1]
+                st.metric("Último Pico", f"${ultimo_pico[1]:.2f}")
+            
+            if pilha_extremos.vales:
+                ultimo_vale = pilha_extremos.vales[-1]
+                st.metric("Último Vale", f"${ultimo_vale[1]:.2f}")
+        
+        # Mostrar como a pilha funciona
+        st.markdown("### 🔍 Como a Pilha Funciona:")
+        st.markdown("""
+        1. **Push (Empilhar):** Quando detectamos um pico/vale, empilhamos na pilha correspondente
+        2. **LIFO:** O último extremo detectado fica no topo (mais fácil de acessar)
+        3. **Contexto:** Mantemos histórico dos extremos para análise de padrões
+        """)
+        
+        # Mostrar últimos extremos detectados
+        if extremos:
+            ultimos_extremos = extremos[-5:]  # Últimos 5 extremos
+            st.write("**Últimos 5 extremos detectados:**")
+            extremos_df = pd.DataFrame(ultimos_extremos, columns=['Minuto', 'Preço', 'Tipo'])
+            extremos_df['Preço'] = extremos_df['Preço'].apply(lambda x: f"${x:.2f}")
+            st.dataframe(extremos_df, use_container_width=True, hide_index=True)
+
 
 def mostrar_pagina_treinamento_modelo():
     st.header("Treinando o Modelo de Machine Learning")
