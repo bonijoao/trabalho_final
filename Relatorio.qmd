@@ -1,0 +1,35 @@
+---
+title: "Análise de Séries Temporais de Alta Frequência: Uma Aplicação de Filas para o Cálculo de Estatísticas Móveis"
+subtitle: "Projeto de Estruturas de Dados - GES 115"
+date: today
+date-format: long
+lang: "pt-BR"
+author: "João Paulo Assis Bonifácio"
+format:
+    html:
+        toc: true
+        toc-depth: 2
+        toc-title: "Índice"
+        number_sections: true
+        code-tools: true
+        code-tools-position: right
+        echo: false
+        embed-resources: true
+---
+
+
+## Introdução
+
+Estruturas de dados são componentes fundamentais da Ciência da Computação, responsáveis por organizar, armazenar e manipular informações. Elas permitem que algoritmos operem de maneira mais rápida e estruturada, influenciando diretamente o desempenho de aplicações práticas. Entre os tipos mais elementares de estruturas de dados estão as **pilhas** e **filas**, que, apesar de mais simples, têm grande aplicação em problemas do mundo real.
+
+A **pilha (stack)** é uma estrutura que segue o princípio **LIFO** (Last In, First Out), em que o último elemento inserido é o primeiro a ser removido. Já a **fila (queue)** opera segundo o princípio **FIFO** (First In, First Out), onde os elementos são removidos na mesma ordem em que foram adicionados. Ambas podem ser implementadas em diversas formas, sendo uma das mais comuns a utilização de **estruturas de dados sequenciais**.
+
+Dentro do contexto das filas implementadas em estruturas sequenciais, é comum utilizar dois ponteiros ou índices para gerenciar a entrada e saída de elementos. Isso se torna especialmente útil em aplicações que exigem controle do fluxo de dados em tempo real, como sistemas de monitoramento e controle monetário, servidores de fila de impressão, entre outros.
+
+Uma aplicação do conceito de fila em estruturas sequenciais é a **técnica da janela deslizante (sliding window)**. Essa técnica consiste em manter um subconjunto contínuo de dados ativos, que se desloca ao longo do tempo ou de uma sequência de entrada. A cada novo dado inserido, o elemento mais antigo é descartado, mantendo o tamanho da janela constante. Essa abordagem é altamente eficiente para situações onde só os dados mais recentes são relevantes, como no cálculo de **médias móveis**, previsão de séries temporais ou acompanhamento de métricas em tempo real.
+
+Neste trabalho, exploramos as **filas** como estrutura central, com foco em sua implementação sequencial e comportamento dinâmico. Como aplicação prática, desenvolvemos um projeto que simula uma **base de dados diária (24h)**. Essa base é representada por uma fila de tamanho fixo, que a cada nova inserção descarta a observação mais antiga, garantindo que apenas os dados das últimas 24 horas estejam armazenados. Essa lógica reflete fielmente o funcionamento de uma janela deslizante, com aplicações em sistemas de monitoramento contínuo, como sensores ambientais, redes de tráfego ou consumo de energia.
+
+Ao longo do trabalho, discutimos os fundamentos teóricos por trás das filas e pilhas, suas implementações e particularidades, culminando na construção e análise do projeto proposto. Com isso, buscamos consolidar os conhecimentos adquiridos na disciplina de Estrutura de Dados, aplicando-os de maneira prática e contextualizada.
+
+
