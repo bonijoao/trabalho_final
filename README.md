@@ -12,7 +12,8 @@ Este projeto demonstra a aplicação prática de **filas** como estruturas de da
 
 ## 🎯 **Objetivo**
 
-Demonstrar como estruturas de dados adequadas (especificamente **filas**) podem otimizar significativamente algoritmos de processamento sequencial, comparando a eficiência de diferentes abordagens para cálculo de médias móveis em séries temporais financeiras.
+Demonstrar como estruturas de dados adequadas (especificamente **filas**) podem otimizar algoritmos de processamento sequencial, desenvolvendo um projeto prático com criptomoedas
+
 
 ---
 
@@ -104,9 +105,6 @@ São **estruturas de dados lineares** que seguem regras específicas de inserç�
 - Análise de tendências com médias móveis
 - Visualização interativa em tempo real
 
-### **Otimização Algorítmica**
-- **Método Tradicional**: O(n×k) - recalcula toda média a cada novo ponto
-- **Método com Fila**: O(1) - atualiza incrementalmente usando janela deslizante
 
 ### **Interface Interativa**
 - Dashboard em Shiny para Python
@@ -120,7 +118,6 @@ São **estruturas de dados lineares** que seguem regras específicas de inserç�
 
 - **Python 3.8+**
 - **Shiny for Python** - Interface web interativa
-- **Collections.deque** - Implementação otimizada de fila
 - **Plotly** - Visualizações interativas
 - **Pandas** - Manipulação de dados
 - **NumPy** - Operações numéricas
@@ -144,33 +141,15 @@ trabalho_final/
 └── requirements.txt        # Dependências
 ```
 
----
-
-## 🔬 **Resultados Esperados**
-
-1. **Demonstração quantitativa** da eficiência de filas vs métodos tradicionais
-2. **Análise de complexidade** computacional com benchmarks
-3. **Interface funcional** para exploração interativa dos dados
-4. **Insights estatísticos** sobre padrões em dados de Bitcoin
-5. **Aplicabilidade** em outras áreas da análise quantitativa
-
----
-
-## 📊 **Métricas de Performance**
-
-- **Tempo de execução**: Comparação entre implementações
-- **Uso de memória**: Eficiência das estruturas de dados
-- **Escalabilidade**: Performance com diferentes volumes de dados
-- **Responsividade**: Interação em tempo real no dashboard
 
 ---
 
 ## 🎓 **Contexto Acadêmico**
 
 **Disciplina**: Estrutura de Dados (GES-115)  
-**Curso**: Estatística - UFLA  
+**Curso**: Bacharelado em Estatística - UFLA  
 **Período**: 3º Período  
-**Foco**: Aplicação prática de estruturas de dados em problemas estatísticos reais
+
 
 ---
 
@@ -183,7 +162,3 @@ trabalho_final/
 - Análise de séries temporais em outras áreas
 
 ---
-
-## 🤝 **Contribuição**
-
-Este projeto demonstra como escolhas adequadas de estruturas de dados podem transformar a eficiência de algoritmos estatísticos, servindo como base para análises quantitativas mais sofisticadas em finanças e outras áreas da estatística. 
