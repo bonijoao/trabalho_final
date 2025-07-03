@@ -4,7 +4,7 @@ import os
 
 # --- CONFIGURAÇÃO ---
 MINHA_API_KEY = 'YdrDvLrNzDWUBAqo1NTQUsZW7vOZCsI3'
-NOME_ARQUIVO_DB = 'db_bitcoin_1dia.csv'
+NOME_ARQUIVO_DB = 'dados/db_bitcoin_1dia.csv'
 SIMBOLO = 'BTCUSD'
 TAMANHO_FILA = 1440
 
