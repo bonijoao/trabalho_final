@@ -402,12 +402,20 @@ class FixedQueue:
             fig, ax = plt.subplots(figsize=(12, 6))
             ax.plot(range(len(dados_sample)), dados_sample, 'b-', alpha=0.7, label='Preço Bitcoin')
             
+            # Variáveis para controlar se já adicionamos as legendas
+            pico_label_added = False
+            vale_label_added = False
+            
             # Marcar picos e vales
             for idx, valor, tipo in extremos:
                 if tipo == "pico":
-                    ax.scatter(idx, valor, color='red', s=50, marker='^', label='Pico' if 'Pico' not in [l.get_label() for l in ax.get_legend().get_texts()] else '')
+                    label = 'Pico' if not pico_label_added else ''
+                    ax.scatter(idx, valor, color='red', s=50, marker='^', label=label)
+                    pico_label_added = True
                 else:
-                    ax.scatter(idx, valor, color='green', s=50, marker='v', label='Vale' if 'Vale' not in [l.get_label() for l in ax.get_legend().get_texts()] else '')
+                    label = 'Vale' if not vale_label_added else ''
+                    ax.scatter(idx, valor, color='green', s=50, marker='v', label=label)
+                    vale_label_added = True
             
             ax.set_title('Detecção de Extremos com Pilha', fontweight='bold')
             ax.set_xlabel('Minutos')
