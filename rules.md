@@ -40,9 +40,9 @@ O tema do seu projeto será **Pilhas e Filas**.
 *  **Formato:** Entregar em pdf ou html (arquivo único, sem exibir código);
 *  **Tamanho:** Máximo de 10 páginas (sem contar referências);
 *  **Estrutura mínima:** 
-    *  Título, identificação do(a) autor(a), data 
-    *  Introdução: contexto do problema e motivação 
-    *  Estrutura de dados escolhida e justificativa 
+    *  Título, identificação do(a) autor(a), data (ok)
+    *  Introdução: contexto do problema e motivação (ok)
+    *  Estrutura de dados escolhida e justificativa  
     *  Descrição da implementação (em nível conceitual, sem código) 
     *  Análise de desempenho, aplicabilidade ou utilidade na Estatística 
     *  Considerações finais 

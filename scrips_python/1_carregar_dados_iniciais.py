@@ -7,8 +7,8 @@ from datetime import datetime, timedelta
 MINHA_API_KEY = 'YdrDvLrNzDWUBAqo1NTQUsZW7vOZCsI3' 
 NOME_ARQUIVO_DB = 'dados/db_bitcoin_1dia.csv'
 SIMBOLO = 'BTCUSD'
-# Tamanho da nossa fila: 24 horas * 60 minutos = 1440 registros
-TAMANHO_FILA = 1440
+# Tamanho da nossa fila: 24 horas * 60 minutos * 2 dias = 2880 registros  
+TAMANHO_FILA = 2880
 
 def carregar_base_inicial(api_key: str):
     """
