@@ -17,4 +17,21 @@ class FilaDeslizante:
         return len(self.elementos) >= self.tamanho_maximo
     
     def get_elementos(self):
-        return self.elementos.copy() 
+        return self.elementos.copy()
+
+class PilhaBuffer:
+    def __init__(self, tamanho_buffer):
+        self.tamanho_buffer = tamanho_buffer
+        self.pilha = []
+    
+    def empilhar(self, item):
+        self.pilha.append(item)
+        
+        if len(self.pilha) >= self.tamanho_buffer:
+            topo = self.pilha[-1]  # pega o último (topo)
+            self.pilha.clear()     # limpa a pilha
+            return topo
+        return None
+    
+    def esta_cheia(self):
+        return len(self.pilha) >= self.tamanho_buffer 

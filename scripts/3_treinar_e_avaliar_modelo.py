@@ -90,7 +90,7 @@ def calcular_metricas_financeiras(y_true, y_pred):
     }
 
 def treinar_e_avaliar_modelos():
-    arquivos_dados = glob.glob('dados/bitcoin_janela_*min.csv')
+    arquivos_dados = glob.glob('../dados/bitcoin_janela_*min_buffer_*min.csv')
     
     if not arquivos_dados:
         print("Nenhum arquivo de dados encontrado. Execute primeiro o script 1_carregar_dados_iniciais.py")
@@ -99,17 +99,25 @@ def treinar_e_avaliar_modelos():
     resultados_completos = []
     
     for arquivo in arquivos_dados:
-        tamanho_janela = int(arquivo.split('_')[-1].replace('min.csv', ''))
+        # Extrair parâmetros do nome do arquivo: bitcoin_janela_15min_buffer_5min.csv
+        nome_base = os.path.basename(arquivo)
+        partes = nome_base.replace('.csv', '').split('_')
+        janela_temporal = int(partes[2].replace('min', ''))
+        buffer_size = int(partes[4].replace('min', ''))
+        num_amostras = janela_temporal // buffer_size
         
         print(f"\n{'='*70}")
-        print(f"AVALIANDO JANELA DE {tamanho_janela} MINUTOS")
+        print(f"AVALIANDO JANELA TEMPORAL: {janela_temporal} min")
+        print(f"BUFFER: {buffer_size} min → {num_amostras} amostras")
+        sequencia = [f't-{janela_temporal-i*buffer_size}' for i in range(num_amostras)]
+        print(f"SEQUÊNCIA: {sequencia} → t-0")
         print(f"{'='*70}")
         
         df = pd.read_csv(arquivo)
         print(f"Total de amostras: {len(df)}")
         
-        X = df.drop('alvo', axis=1).values
-        y = df['alvo'].values
+        X = df.drop('t-0', axis=1).values  # Mudança: coluna alvo agora é 't-0'
+        y = df['t-0'].values
         
         # Walk Forward Validation
         folds = walk_forward_validation(X, y, n_splits=5, test_size=0.2)
@@ -142,7 +150,9 @@ def treinar_e_avaliar_modelos():
             # Calcular métricas
             metricas = calcular_metricas_financeiras(y_test, y_pred)
             metricas['fold'] = fold_num
-            metricas['tamanho_janela'] = tamanho_janela
+            metricas['janela_temporal'] = janela_temporal
+            metricas['buffer_size'] = buffer_size
+            metricas['num_amostras'] = num_amostras
             metricas['n_train'] = len(X_train)
             metricas['n_test'] = len(X_test)
             
@@ -164,7 +174,9 @@ def treinar_e_avaliar_modelos():
         df_metricas = pd.DataFrame(metricas_fold)
         
         resultado_medio = {
-            'tamanho_janela': tamanho_janela,
+            'janela_temporal': janela_temporal,
+            'buffer_size': buffer_size,
+            'num_amostras': num_amostras,
             'mae_mean': df_metricas['mae'].mean(),
             'mae_std': df_metricas['mae'].std(),
             'rmse_mean': df_metricas['rmse'].mean(),
@@ -186,7 +198,7 @@ def treinar_e_avaliar_modelos():
             'predicoes': predicoes_fold
         })
         
-        print(f"\nRESUMO JANELA {tamanho_janela} min:")
+        print(f"\nRESUMO JANELA {janela_temporal}min (buffer {buffer_size}min, {num_amostras} amostras):")
         print(f"  MAE: {resultado_medio['mae_mean']:.2f} ± {resultado_medio['mae_std']:.2f}")
         print(f"  MAPE: {resultado_medio['mape_mean']:.2f}% ± {resultado_medio['mape_std']:.2f}%")
         print(f"  Acurácia Direção: {resultado_medio['acuracia_direcao_mean']:.1f}% ± {resultado_medio['acuracia_direcao_std']:.1f}%")
@@ -196,11 +208,11 @@ def treinar_e_avaliar_modelos():
     df_ranking = pd.DataFrame([r['resultado_medio'] for r in resultados_completos])
     df_ranking = df_ranking.sort_values('mae_mean')
     
-    print(f"\n{'='*100}")
+    print(f"\n{'='*120}")
     print("RANKING FINAL DOS MODELOS (Walk Forward Validation)")
-    print(f"{'='*100}")
-    print(f"{'Rank':<4} {'Janela':<8} {'MAE':<15} {'MAPE (%)':<12} {'Acur.Dir (%)':<13} {'R²':<12} {'Folds':<6}")
-    print("-" * 100)
+    print(f"{'='*120}")
+    print(f"{'Rank':<4} {'Janela':<8} {'Buffer':<8} {'Amostras':<8} {'MAE':<15} {'MAPE (%)':<12} {'Acur.Dir (%)':<13} {'R²':<12} {'Folds':<6}")
+    print("-" * 120)
     
     for i, (_, row) in enumerate(df_ranking.iterrows()):
         mae_str = f"{row['mae_mean']:.2f}±{row['mae_std']:.2f}"
@@ -208,16 +220,21 @@ def treinar_e_avaliar_modelos():
         acur_str = f"{row['acuracia_direcao_mean']:.1f}±{row['acuracia_direcao_std']:.1f}"
         r2_str = f"{row['r2_mean']:.3f}±{row['r2_std']:.3f}"
         
-        print(f"{i+1:<4} {int(row['tamanho_janela']):<8} {mae_str:<15} {mape_str:<12} {acur_str:<13} {r2_str:<12} {int(row['n_folds']):<6}")
+        print(f"{i+1:<4} {int(row['janela_temporal']):<8} {int(row['buffer_size']):<8} {int(row['num_amostras']):<8} {mae_str:<15} {mape_str:<12} {acur_str:<13} {r2_str:<12} {int(row['n_folds']):<6}")
     
     melhor = df_ranking.iloc[0]
-    print(f"\n🏆 MELHOR MODELO: Janela de {int(melhor['tamanho_janela'])} minutos")
+    print(f"\n🏆 MELHOR MODELO:")
+    print(f"   Janela Temporal: {int(melhor['janela_temporal'])} min")
+    print(f"   Buffer: {int(melhor['buffer_size'])} min")
+    print(f"   Amostras: {int(melhor['num_amostras'])}")
+    sequencia_melhor = [f't-{int(melhor["janela_temporal"])-i*int(melhor["buffer_size"])}' for i in range(int(melhor['num_amostras']))]
+    print(f"   Sequência: {sequencia_melhor} → t-0")
     print(f"   MAE: {melhor['mae_mean']:.2f} ± {melhor['mae_std']:.2f}")
     print(f"   Acurácia Direcional: {melhor['acuracia_direcao_mean']:.1f}% ± {melhor['acuracia_direcao_std']:.1f}%")
     
     # Salvar resultados
-    df_ranking.to_csv('dados/resultados_avaliacao.csv', index=False)
-    print(f"\n📊 Resultados salvos em: dados/resultados_avaliacao.csv")
+    df_ranking.to_csv('../dados/resultados_avaliacao.csv', index=False)
+    print(f"\n📊 Resultados salvos em: ../dados/resultados_avaliacao.csv")
     
     # Criar visualizações avançadas
     criar_visualizacoes_avancadas(resultados_completos, df_ranking)
@@ -237,7 +254,7 @@ def criar_visualizacoes_avancadas(resultados_completos, df_ranking):
     
     # 1. Comparação de Métricas Principais (com barras de erro)
     ax1 = fig.add_subplot(gs[0, :2])
-    janelas = df_ranking['tamanho_janela'].values
+    janelas = df_ranking['janela_temporal'].values
     mae_means = df_ranking['mae_mean'].values
     mae_stds = df_ranking['mae_std'].values
     
@@ -278,10 +295,10 @@ def criar_visualizacoes_avancadas(resultados_completos, df_ranking):
     
     # Criar matriz para heatmap
     heatmap_data = []
-    janelas_ordenadas = sorted([r['resultado_medio']['tamanho_janela'] for r in resultados_completos])
+    janelas_ordenadas = sorted([r['resultado_medio']['janela_temporal'] for r in resultados_completos])
     
     for janela in janelas_ordenadas:
-        resultado = next(r for r in resultados_completos if r['resultado_medio']['tamanho_janela'] == janela)
+        resultado = next(r for r in resultados_completos if r['resultado_medio']['janela_temporal'] == janela)
         fold_maes = [m['mae'] for m in resultado['metricas_fold']]
         # Pad com NaN se necessário
         while len(fold_maes) < 5:
@@ -313,7 +330,7 @@ def criar_visualizacoes_avancadas(resultados_completos, df_ranking):
     
     cores = ['#1f77b4', '#ff7f0e', '#2ca02c']
     for i, resultado in enumerate(resultados_completos):
-        janela = resultado['resultado_medio']['tamanho_janela']
+        janela = resultado['resultado_medio']['janela_temporal']
         todos_erros = []
         
         for pred_data in resultado['predicoes']:
@@ -332,8 +349,8 @@ def criar_visualizacoes_avancadas(resultados_completos, df_ranking):
     # 5. Performance Temporal (exemplo com melhor modelo)
     ax5 = fig.add_subplot(gs[2, :])
     
-    melhor_janela = df_ranking.iloc[0]['tamanho_janela']
-    melhor_resultado = next(r for r in resultados_completos if r['resultado_medio']['tamanho_janela'] == melhor_janela)
+    melhor_janela = df_ranking.iloc[0]['janela_temporal']
+    melhor_resultado = next(r for r in resultados_completos if r['resultado_medio']['janela_temporal'] == melhor_janela)
     
     todos_true = []
     todos_pred = []
@@ -361,7 +378,7 @@ def criar_visualizacoes_avancadas(resultados_completos, df_ranking):
     ax6 = fig.add_subplot(gs[3, :2])
     
     for i, resultado in enumerate(resultados_completos):
-        janela = resultado['resultado_medio']['tamanho_janela']
+        janela = resultado['resultado_medio']['janela_temporal']
         todos_true = []
         todos_pred = []
         
@@ -393,7 +410,7 @@ def criar_visualizacoes_avancadas(resultados_completos, df_ranking):
     texto_resumo = "RESUMO ESTATÍSTICO\n" + "="*50 + "\n\n"
     
     for i, (_, row) in enumerate(df_ranking.iterrows()):
-        janela = int(row['tamanho_janela'])
+        janela = int(row['janela_temporal'])
         texto_resumo += f"JANELA {janela} MINUTOS:\n"
         texto_resumo += f"  • MAE: {row['mae_mean']:.2f} ± {row['mae_std']:.2f}\n"
         texto_resumo += f"  • MAPE: {row['mape_mean']:.1f}% ± {row['mape_std']:.1f}%\n"
@@ -402,7 +419,7 @@ def criar_visualizacoes_avancadas(resultados_completos, df_ranking):
         texto_resumo += f"  • Folds: {int(row['n_folds'])}\n\n"
     
     melhor = df_ranking.iloc[0]
-    texto_resumo += f"🏆 MELHOR: {int(melhor['tamanho_janela'])} min\n"
+    texto_resumo += f"🏆 MELHOR: {int(melhor['janela_temporal'])} min\n"
     texto_resumo += f"Supera acaso em {melhor['acuracia_direcao_mean']-50:.1f}pp"
     
     ax7.text(0.05, 0.95, texto_resumo, transform=ax7.transAxes, fontsize=10,
