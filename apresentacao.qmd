@@ -1,0 +1,177 @@
+---
+title: "Projeto Final de Estrutura de Dados"
+subtitle: "Pilhas e Filas"
+author: "João Paulo Assis Bonifácio"
+date: "2025-07-04"
+date-format: "DD/MM/YYYY"
+format: revealjs
+embed-resources: true
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+# Configurar o reticulate para usar o Python do sistema
+use_python(Sys.which("python"), required = TRUE)
+# Instalar dependências se necessário
+if (!py_module_available("pandas")) {
+  py_install("pandas")
+}
+if (!py_module_available("plotly")) {
+  py_install("plotly")
+}
+```
+
+## Introdução
+
+* Filas (FIFO - First In, First Out)
+* Pilhas (LIFO - Last In, First Out)
+* Médias Móveis
+* Detecção de Valores Críticos
+* Online Machine Learning
+
+## Escolha da Estrutura de Dados
+
+
+- **Simplicidade**: Ambas as estruturas são simples de implementar.
+
+- **Adequação ao Problema**: Filas são recomendadas para calculos recorrentes, pilhas são recomendadas para armazenar valores que não serão removidos ao longo algoritimo.
+
+## Médias Móveis (Filas)
+
+```{r, eval=FALSE, echo=TRUE}
+
+serie <- conjunto_de_dados[1:N]
+
+tamanhoJanela = n
+
+janela = []
+
+janela = serie[0:n]
+
+para i de n até N:
+    media_i <- media(janela)
+    processarMediaMovel(media_i)
+    se i < N:
+        janela.pop(0)  # Remove o primeiro elemento da fila
+        janela.append(serie[i])  # Adiciona o próximo elemento
+    
+
+
+
+```
+
+## Detecção de Valores Críticos (Pilhas)
+
+* **Pilha de máximos**:
+
+```{r, eval=FALSE, echo=TRUE}
+
+serie <- conjunto_de_dados[1:N]
+
+pilha = []
+
+pilha <- serie[0]
+
+para i de 0 até N:
+ se serie[i] > pilha[0]:
+    pilha[j] <- serie[i]
+    i <- i + 1
+ se serie[i] < pilha[0]:
+    j <- j + 1
+    i <- i + 1
+    <- i + 1<- i + 1
+
+
+```
+
+* **Pilha de mínimos**: inverter as desigualdades
+
+
+## Base de Dados
+
+[**Preços de Bitcoin em dólares americanos (BTC/USD)**](https://financialmodelingprep.com/)
+
+* Série de preços dos ultimos 2 dias. 1 registro por minuto.
+
+* Série de tamanho fixo, 2880 registros (FIFO).
+```{python}
+import pandas as pd
+
+df = pd.read_csv('dados/db_bitcoin_1dia.csv')
+
+
+# Gráfico interativo
+import plotly.express as px
+
+# Filtrar apenas a coluna de preços do BTC
+df_btc = df[['Date', 'Close']]
+
+# Criar gráfico interativo com tema mínimo e sem fundo
+fig = px.line(df_btc, x='Date', y='Close', title='Preço do Bitcoin', template='plotly_white')
+
+# Mostrar gráfico
+fig.show()
+
+```
+
+
+## Implementação
+
+* [Média Movel](shiny/media_movel.py)
+
+![Gráfico Média Movel](img/1.png)
+
+
+## Implementação
+
+* [Valores Críticos](shiny/valores_criticos.py)
+
+![Gráfico Valores Críticos](img/2.png)
+
+
+# Análise de Desempenho
+
+## Médias Móveis (Filas)
+
+**Complexidade de Tempo:**
+- **$\mathcal{O}$(N × n)** onde N = tamanho da série, n = tamanho da janela
+- Para cada elemento: $\mathcal{O}$(n) para calcular média + $\mathcal{O}$(1) para pop/append
+- **Ineficiente** para janelas grandes
+
+**Complexidade de Espaço:**
+- **$\mathcal{O}$(n)** - armazena apenas elementos da janela atual
+- **Eficiente** em memória
+
+
+## Detecção de Valores Críticos (Pilhas)
+
+**Complexidade de Tempo:**
+- **$\mathcal{O}$(N)** no melhor caso - série monotônica
+- **$\mathcal{O}$(N²)** no pior caso - série alternante
+- Depende do padrão da série temporal
+
+**Complexidade de Espaço:**
+- **$\mathcal{O}$(N)** no pior caso - todos elementos são extremos
+- **$\mathcal{O}$(1)** no melhor caso - série monotônica
+
+
+## Considerações Finais
+
+| Aspecto | Médias Móveis  | Valores Críticos  |
+|---------|----------------------|---------------------------|
+| **Melhor Caso** | $\mathcal{O}$(N × n) | $\mathcal{O}$(N) |
+| **Pior Caso** | $\mathcal{O}$(N × n) | $\mathcal{O}$(N²) |
+| **Memória** | $\mathcal{O}$(n) | $\mathcal{O}$(N) |
+
+
+* Neste caso, ambos algoritmos são ineficientes para séries muito grandes.
+
+
+## Referências
+
+* [Médias Móveis](https://en.wikipedia.org/wiki/Moving_average)
+* [Valores Críticos](https://en.wikipedia.org/wiki/Extreme_value_theory)    
+* [Shiny](https://shinylive.io/py/)
+* [Online Machine Learning](https://www.amazon.com/Online-Machine-Learning-Methodologies-Applications/dp/9819970067) por Eva Bartz e Thomas Bartz-Beielstein
+
+
